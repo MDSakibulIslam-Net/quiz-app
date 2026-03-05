@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header .logo {
+            width: 75px; height: 75px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 30px; color: white;
+            box-shadow: 0 12px 35px rgba(102,126,234,0.4);
+        }
+
+        .auth-header h1 { color: white; font-size: 24px; }
+        .auth-header p { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 5px; }
+
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 11px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .input-box input, .input-box select {
+            width: 100%;
+            padding: 13px 15px 13px 42px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-box select option { color: #333; background: white; }
+
+        .input-box input:focus, .input-box select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+
+        .input-box input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .input-box i {
+            position: absolute;
+            left: 14px; top: 50%; transform: translateY(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .msg {
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg.error { display: flex; background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.3); color: #ff6b7a; }
+        .msg.success { display: flex; background: rgba(0,184,148,0.15); border: 1px solid rgba(0,184,148,0.3); color: #55efc4; }
+
+        .demo-box {
+            margin-top: 20px;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .demo-box h4 {
+            color: rgba(255,255,255,0.4);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .demo-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+
+        .demo-row span:first-child { color: rgba(255,255,255,0.4); }
+        .demo-row span:last-child { color: #667eea; cursor: pointer; font-weight: 500; }
+        .demo-row span:last-child:hover { color: #8ba3ff; }
+
+        .spinner { display: none; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .submit-btn.loading .btn-text { display: none; }
+        .submit-btn.loading .spinner { display: block; }
+
+        @media (max-width: 480px) {
+            .auth-card { padding: 30px 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="logo"><i class="fas fa-brain"></i></div>
+        <h1>Quiz Master</h1>
+        <p>Test Your Knowledge, Win Rewards</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="tab-content active" id="tab-login">
+        <div class="msg" id="loginMsg"><i class="fas fa-info-circle"></i><span id="loginMsgText"></span></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username / Phone</label>
+                <div class="input-box">
+                    <input type="text" id="loginUser" placeholder="Enter username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-box">
+                    <input type="password" id="loginPass" placeholder="Enter password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn" id="loginBtn">
+                <span class="btn-text">Login</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div class="demo-box">
+            <h4>Demo Credentials</h4>
+            <div class="demo-row">
+                <span>Admin:</span>
+                <span onclick="document.getElementById('loginUser').value='admin'; document.getElementById('loginPass').value='admin123'">admin / admin123</span>
+            </div>
+            <div class="demo-row">
+                <span>User:</span>
+                <span onclick="document.getElementById('loginUser').value='rahim'; document.getElementById('loginPass').value='123456'">rahim / 123456</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="tab-content" id="tab-register">
+        <div class="msg" id="regMsg"><i class="fas fa-info-circle"></i><span id="regMsgText"></span></div>
+        <form id="regForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <div class="input-box">
+                    <input type="text" id="regName" placeholder="Your full name" required>
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <div class="input-box">
+                    <input type="tel" id="regPhone" placeholder="01XXXXXXXXX" required>
+                    <i class="fas fa-phone"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>District</label>
+                <div class="input-box">
+                    <input type="text" id="regDistrict" placeholder="Your district" required>
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-box">
+                    <input type="text" id="regUsername" placeholder="Choose a username" required>
+                    <i class="fas fa-at"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-box">
+                    <input type="password" id="regPass" placeholder="Password (min 6 characters)" required minlength="6">
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn" id="regBtn">
+                <span class="btn-text">Register</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/github-db.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    if (auth.isLoggedIn()) {
+        const u = auth.getUser();
+        window.location.href = u.role === 'admin' ? 'admin.html' : 'quiz.html';
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    function showMsg(id, text, type) {
+        const el = document.getElementById(id);
+        document.getElementById(id + 'Text').textContent = text;
+        el.className = `msg ${type}`;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        btn.classList.add('loading'); btn.disabled = true;
+
+        const result = await auth.login(
+            document.getElementById('loginUser').value.trim(),
+            document.getElementById('loginPass').value
+        );
+
+        if (result.success) {
+            window.location.href = result.user.role === 'admin' ? 'admin.html' : 'quiz.html';
+        } else {
+            showMsg('loginMsg', result.message, 'error');
+            btn.classList.remove('loading'); btn.disabled = false;
+        }
+    });
+
+    document.getElementById('regForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('regBtn');
+        btn.classList.add('loading'); btn.disabled = true;
+
+        const phone = document.getElementById('regPhone').value.trim();
+        if (!/^01[3-9]\d{8}$/.test(phone)) {
+            showMsg('regMsg', 'Invalid phone number (01XXXXXXXXX)', 'error');
+            btn.classList.remove('loading'); btn.disabled = false;
+            return;
+        }
+
+        const result = await auth.register({
+            name: document.getElementById('regName').value.trim(),
+            phone: phone,
+            district: document.getElementById('regDistrict').value.trim(),
+            username: document.getElementById('regUsername').value.trim().toLowerCase(),
+            password: document.getElementById('regPass').value
+        });
+
+        if (result.success) {
+            showMsg('regMsg', '✅ Registration successful! Please login', 'success');
+            document.getElementById('regForm').reset();
+            setTimeout(() => switchTab('login'), 2000);
+        } else {
+            showMsg('regMsg', result.message, 'error');
+        }
+        btn.classList.remove('loading'); btn.disabled = false;
+    });
+</script>
+</body>
+</html>
