@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f8; color: #2d3436; }
+        
+        .navbar { background: white; padding: 0 25px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #667eea; font-size: 17px; }
+        .btn-logout { padding: 7px 15px; background: none; border: 1.5px solid #e74c3c; color: #e74c3c; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s; }
+        .btn-logout:hover { background: #e74c3c; color: white; }
+        
+        .container { max-width: 800px; margin: 0 auto; padding: 25px 20px; }
+        .loading-state { text-align: center; padding: 80px 20px; }
+        .loader { width: 50px; height: 50px; border: 4px solid #e8ecf1; border-top-color: #667eea; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .quiz-info-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .quiz-banner { background: linear-gradient(135deg, #667eea, #764ba2); padding: 35px 30px; color: white; position: relative; }
+        .quiz-banner h1 { font-size: 24px; margin-bottom: 8px; }
+        .quiz-meta { padding: 25px 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; }
+        .meta-item { text-align: center; padding: 15px; background: #f8f9ff; border-radius: 12px; }
+        .meta-item .value { font-size: 20px; font-weight: 700; }
+        .meta-item .label { font-size: 12px; color: #636e72; margin-top: 2px; }
+        
+        .btn-start { width: 100%; padding: 16px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 14px; color: white; font-size: 18px; font-weight: 700; font-family: inherit; cursor: pointer; margin: 0 30px 30px; }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,184,148,0.3); }
+        
+        .question-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .q-text { font-size: 19px; font-weight: 600; margin-bottom: 25px; }
+        .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: #f8f9ff; border: 2px solid transparent; border-radius: 14px; cursor: pointer; margin-bottom: 12px; }
+        .option:hover { border-color: rgba(102,126,234,0.3); }
+        .option.selected { border-color: #667eea; background: rgba(102,126,234,0.08); }
+        
+        .timer { padding: 8px 18px; background: #fff3e0; border-radius: 10px; font-weight: 700; font-size: 16px; color: #e17055; }
+        .timer.danger { background: #ffeaea; color: #e74c3c; }
+        
+        .result-card { background: white; border-radius: 20px; overflow: hidden; text-align: center; }
+        .result-banner { padding: 40px 30px; color: white; }
+        .result-banner.excellent { background: linear-gradient(135deg, #00b894, #00cec9); }
+        .result-score { font-size: 48px; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand"><i class="fas fa-brain"></i> Quiz Master</div>
+    <div>
+        <span id="navUser" style="font-size:14px; margin-right:15px;"></span>
+        <button class="btn-logout" onclick="auth.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="loading" class="loading-state">
+        <div class="loader"></div>
+        <p>Loading quiz...</p>
+    </div>
+
+    <div id="quizInfo" style="display:none;">
+        <div class="quiz-info-card">
+            <div class="quiz-banner">
+                <h1 id="quizTitle"></h1>
+                <p id="quizDesc"></p>
+            </div>
+            <div class="quiz-meta">
+                <div class="meta-item">
+                    <div class="value" id="totalQ">0</div>
+                    <div class="label">Questions</div>
+                </div>
+                <div class="meta-item">
+                    <div class="value" id="timeLimit">0</div>
+                    <div class="label">Minutes</div>
+                </div>
+            </div>
+            <button class="btn-start" onclick="startQuiz()"><i class="fas fa-play"></i> Start Quiz</button>
+        </div>
+    </div>
+
+    <div id="quizPlay" style="display:none;">
+        <div style="background:white; border-radius:16px; padding:18px 25px; margin-bottom:20px; display:flex; justify-content:space-between;">
+            <div>Question <span id="currentQ">1</span> / <span id="totalQPlay">10</span></div>
+            <div class="timer" id="timer"><i class="fas fa-clock"></i> <span id="timerText">05:00</span></div>
+        </div>
+        <div class="question-card" id="questionCard"></div>
+    </div>
+
+    <div id="result" style="display:none;">
+        <div class="result-card">
+            <div class="result-banner excellent">
+                <div style="font-size:60px; margin-bottom:10px;">🏆</div>
+                <div class="result-score" id="resultScore">0/0</div>
+                <div style="font-size:16px; margin-top:5px;" id="resultText">Excellent!</div>
+            </div>
+            <div style="padding:30px;">
+                <h3>Quiz Completed!</h3>
+                <p style="margin-top:10px; color:#636e72;">Your result has been saved.</p>
+                <button class="btn-start" onclick="auth.logout()" style="margin:20px 0 0 0;">Go to Home</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/github-db.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    if (!auth.requireAuth('user')) throw new Error('Auth required');
+
+    const user = auth.getUser();
+    document.getElementById('navUser').textContent = '👤 ' + user.name;
+
+    let quizData = null;
+    let currentQuestion = 0;
+    let answers = {};
+    let timerInterval = null;
+    let timeRemaining = 0;
+    let startTime = 0;
+
+    async function init() {
+        try {
+            quizData = await db.readAPI('data/active-quiz.json');
+            
+            if (!quizData || quizData.status !== 'active') {
+                document.getElementById('loading').innerHTML = '<h2>No active quiz</h2><p>Please check back later</p>';
+                return;
+            }
+
+            const existingResult = await db.getResult(quizData.quizId, user.id);
+            if (existingResult) {
+                document.getElementById('loading').innerHTML = '<h2>Already Participated</h2><p>You have already taken this quiz</p><p>Score: ' + existingResult.score + '/' + existingResult.totalQuestions + '</p>';
+                return;
+            }
+
+            document.getElementById('quizTitle').textContent = quizData.title;
+            document.getElementById('quizDesc').textContent = quizData.description;
+            document.getElementById('totalQ').textContent = quizData.questions.length;
+            document.getElementById('timeLimit').textContent = Math.floor(quizData.timeLimit / 60);
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('quizInfo').style.display = 'block';
+        } catch (error) {
+            document.getElementById('loading').innerHTML = '<h2>Error</h2><p>' + error.message + '</p>';
+        }
+    }
+
+    function startQuiz() {
+        currentQuestion = 0;
+        answers = {};
+        startTime = Date.now();
+        timeRemaining = quizData.timeLimit;
+
+        document.getElementById('quizInfo').style.display = 'none';
+        document.getElementById('quizPlay').style.display = 'block';
+        document.getElementById('totalQPlay').textContent = quizData.questions.length;
+        
+        renderQuestion();
+        startTimer();
+    }
+
+    function startTimer() {
+        updateTimer();
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimer();
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function updateTimer() {
+        const min = Math.floor(timeRemaining / 60);
+        const sec = timeRemaining % 60;
+        document.getElementById('timerText').textContent = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        document.getElementById('timer').className = timeRemaining <= 30 ? 'timer danger' : 'timer';
+    }
+
+    function renderQuestion() {
+        const q = quizData.questions[currentQuestion];
+        document.getElementById('currentQ').textContent = currentQuestion + 1;
+        
+        const selected = answers[q.id];
+        document.getElementById('questionCard').innerHTML = `
+            <div class="q-text">${currentQuestion + 1}. ${q.question}</div>
+            <div>
+                ${q.options.map((opt, i) => `
+                    <div class="option ${selected === i ? 'selected' : ''}" onclick="selectOption('${q.id}', ${i})">
+                        <span>${opt}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:25px;">
+                <button onclick="prevQuestion()" ${currentQuestion === 0 ? 'disabled' : ''} style="padding:12px 28px; border:none; border-radius:12px; font-family:inherit; cursor:pointer; background:#f0f2f5;">Previous</button>
+                <button onclick="${currentQuestion === quizData.questions.length - 1 ? 'submitQuiz()' : 'nextQuestion()'}" style="padding:12px 28px; border:none; border-radius:12px; font-family:inherit; cursor:pointer; background:#667eea; color:white;">${currentQuestion === quizData.questions.length - 1 ? 'Submit' : 'Next'}</button>
+            </div>
+        `;
+    }
+
+    function selectOption(qId, optionIndex) {
+        answers[qId] = optionIndex;
+        renderQuestion();
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < quizData.questions.length - 1) {
+            currentQuestion++;
+            renderQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            renderQuestion();
+        }
+    }
+
+    async function submitQuiz() {
+        clearInterval(timerInterval);
+
+        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+        let correctAnswers = 0;
+
+        quizData.questions.forEach(q => {
+            if (answers[q.id] === q.correct) correctAnswers++;
+        });
+
+        const resultData = {
+            quizId: quizData.quizId,
+            userId: user.id,
+            userName: user.name,
+            userPhone: user.phone,
+            userDistrict: user.district || '',
+            score: correctAnswers,
+            totalQuestions: quizData.questions.length,
+            correctAnswers: correctAnswers,
+            wrongAnswers: quizData.questions.length - correctAnswers,
+            percentage: Math.round((correctAnswers / quizData.questions.length) * 100),
+            timeTaken: timeTaken,
+            answers: answers,
+            submittedAt: new Date().toISOString()
+        };
+
+        document.getElementById('resultScore').textContent = correctAnswers + '/' + quizData.questions.length;
+        document.getElementById('resultText').textContent = resultData.percentage >= 80 ? 'Excellent!' : resultData.percentage >= 60 ? 'Good Job!' : 'Keep Trying!';
+        
+        document.getElementById('quizPlay').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+
+        try {
+            await db.saveResult(quizData.quizId, user.id, resultData);
+        } catch (error) {
+            alert('Error saving result. Please take a screenshot!');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
