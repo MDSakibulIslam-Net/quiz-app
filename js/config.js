@@ -5,7 +5,7 @@
 
 const CONFIG = {
     // আপনার GitHub Personal Access Token
-    GITHUB_TOKEN: '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',
+    GITHUB_TOKEN: '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',
     
     // আপনার GitHub Username
     OWNER: 'MDSakibulIslam-Net',
